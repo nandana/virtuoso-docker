@@ -24,7 +24,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get remove -y --purge $BUILD_DEPS $deps && \
     apt-get autoremove --purge -y && \
     cd /tmp && \
-    dpkg -i virtuoso-opensource*deb virtuoso-server*.deb virtuoso-minimal_*.deb virtuoso-server*.deb  libvirtodbc*.deb || apt-get install -f -y && \
+    dpkg -i virtuoso-opensource*deb virtuoso-server*.deb virtuoso-minimal_*.deb virtuoso-server*.deb  libvirtodbc*.deb virtuoso-vad-conductor*.deb virtuoso-vad-isparql*.deb || apt-get install -f -y && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/*
