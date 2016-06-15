@@ -20,9 +20,24 @@ function isql {
 
 echo "Populating from /staging/staging.sql"
 isql /staging/staging.sql 
-MAX_CORES=8
-for core in $(cat /proc/cpuinfo  | grep "^processor" | head -n $MAX_CORES | awk '{ print $3} '); do 
-  echo Starting RDF loader for core $core 
+
+# How many cores? Get last processor number
+cores=$(($(cat /proc/cpuinfo  | grep "^processor" | tail -1 | sed 's/.*: //')+1))
+
+# > it is recommended a maximum of no cores / 2.5, to optimally 
+# > parallelize the data load and hence maximize load speed
+# http://virtuoso.openlinksw.com/dataspace/doc/dav/wiki/Main/VirtBulkRDFLoader
+# 
+# .. but we'll not do more than 8 anyway, as that would generally kill I/O
+MAX_LOADERS=8
+loaders=$(($cores*2/5 + 1))
+loaders=$((loaders<MAX_LOADERS?loaders:MAX_LOADERS))
+# http://stackoverflow.com/questions/10415064/how-to-calculate-the-minimum-of-two-variables-simply-in-bash
+
+echo "Starting $loaders rdf_loader_runs"
+
+for loader in `seq 1 8`; do
+  echo Starting RDF loader $loader 
   isql 'EXEC=rdf_loader_run();' & 
 done
 wait

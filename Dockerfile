@@ -7,6 +7,9 @@ MAINTAINER Nandana Mihindukulasooriya <https://twitter.com/nandanamihindu>
 # FIXME: Is openjdk-6-jdk still needed?
 ENV BUILD_DEPS openjdk-6-jdk unzip wget net-tools build-essential
 ENV URL https://github.com/openlink/virtuoso-opensource/archive/stable/7.zip
+#ENV URL https://github.com/openlink/virtuoso-opensource/archive/develop/7.zip
+
+ENV PATCH_00 https://github.com/openlink/virtuoso-opensource/commit/4c438f3f6381db2400a4399f137ae02b998208d6.diff
 
 # Build virtuoso opensource debian package from github
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ precise-backports main restricted universe multiverse" >> /etc/apt/sources.list
@@ -17,7 +20,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     wget --no-check-certificate --quiet $URL \
        -O /tmp/virtuoso-opensource.zip && \
     unzip -q /tmp/virtuoso-opensource.zip && \
+    wget --no-check-certificate -O /tmp/00.patch $PATCH_00 && \
     cd /tmp/virtuoso-*/ && \
+    patch -p1 < /tmp/00.patch && \
     deps=$(dpkg-checkbuilddeps 2>&1 | sed 's/.*: //' | sed 's/([^)]*)//g') && \
     apt-get install -y $deps && \
     dpkg-buildpackage -us -uc && \
@@ -27,6 +32,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     dpkg -i virtuoso-opensource*deb virtuoso-server*.deb virtuoso-minimal_*.deb virtuoso-server*.deb  libvirtodbc*.deb virtuoso-vad-conductor*.deb virtuoso-vad-isparql*.deb || apt-get install -f -y && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* && \
+    mv /tmp/*deb /var/cache/apt/archives/ && \
     rm -rf /tmp/*
 
 RUN ln -s /usr/bin/isql-vt /usr/local/bin/isql
