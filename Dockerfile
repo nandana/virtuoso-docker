@@ -1,5 +1,5 @@
 FROM ubuntu:14.04
-MAINTAINER Stian Soiland-Reyes <orcid.org/0000-0001-9842-9718>
+MAINTAINER Nandana Mihindukulasooriya <https://twitter.com/nandanamihindu>
 
 # openjdk 6 hard-coded to resolve 
 # ambiguity in build dependency
